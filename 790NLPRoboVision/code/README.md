@@ -1,0 +1,1 @@
+train.py contains the script for running the traning script. note that there would be errors due to importing an imcomplete implementation of the transformer model. However, the dataloading and visualization should work when given the Sceneflow dataset paths.
