@@ -91,15 +91,15 @@ all_left_img, all_right_img, all_left_disp, test_left_img, test_right_img, test_
                     filepath_flying=args.datapath_flying)
 
 
-batch_size = 2
+batch_size = 1
 
 TrainImgLoader = torch.utils.data.DataLoader(
     dl.SceneflowLoader(all_left_img, all_right_img, all_left_disp, all_left_cam, all_right_cam, 32, True),
-    batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+    batch_size=batch_size, shuffle=True, num_workers=4, drop_last=False)
 
 TestImgLoader = torch.utils.data.DataLoader(
     dl.SceneflowLoader(test_left_img, test_right_img, test_left_disp, test_left_cam, test_right_cam, 32, False),
-    batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+    batch_size=batch_size*2, shuffle=False, num_workers=4, drop_last=False)
 
 # if args.run_depth:
 #
@@ -284,8 +284,8 @@ def main():
         total_epe_loss = 0
         # adjust_learning_rate(optimizer, epoch)
 
-        # if epoch % 1 == 0 and epoch != 0:
-        if epoch % 1 == 0:
+        if epoch % 1 == 0 and epoch != 0:
+        # if epoch % 1 == 0:
             logging.info("testing...")
             # for batch_idx, (imgL, imgR, disp_L, pad_w, pad_h, left_cam, right_cam, imgL_fn, imgR_fn) in enumerate(TestImgLoader):
             for batch_idx, (imgL, imgR, disp_L, left_cam_crop, right_cam_crop, imgL_crop_fn, imgR_crop_fn) in enumerate(
