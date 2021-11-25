@@ -10,10 +10,10 @@ import numpy as np
 import math
 
 # train/ validation image crop size constants
-# DEFAULT_TRAIN_IMAGE_HEIGHT = 256
-# DEFAULT_TRAIN_IMAGE_WIDTH = 512
-DEFAULT_TRAIN_IMAGE_HEIGHT = 540
-DEFAULT_TRAIN_IMAGE_WIDTH = 960
+DEFAULT_TRAIN_IMAGE_HEIGHT = 256
+DEFAULT_TRAIN_IMAGE_WIDTH = 512
+# DEFAULT_TRAIN_IMAGE_HEIGHT = 540
+# DEFAULT_TRAIN_IMAGE_WIDTH = 960
 
 
 def default_loader(path):
@@ -53,52 +53,52 @@ class SceneflowLoader(data.Dataset):
         left_disp, left_scale = self.dploader(left_disp)
         left_disp = np.ascontiguousarray(left_disp, dtype=np.float32)
 
-        if self.training:
-            w, h = left_img.size
-            th, tw = DEFAULT_TRAIN_IMAGE_HEIGHT, DEFAULT_TRAIN_IMAGE_WIDTH
+        # if self.training:
+        w, h = left_img.size
+        th, tw = DEFAULT_TRAIN_IMAGE_HEIGHT, DEFAULT_TRAIN_IMAGE_WIDTH
 
-            x1 = random.randint(0, w - tw)
-            y1 = random.randint(0, h - th)
+        x1 = random.randint(0, w - tw)
+        y1 = random.randint(0, h - th)
 
-            left_img = left_img.crop((x1, y1, x1 + tw, y1 + th))
-            right_img = right_img.crop((x1, y1, x1 + tw, y1 + th))
-            left_disp = left_disp[y1:y1 + th, x1:x1 + tw]
-            left_cam['intrinsics']['cx'] -= x1
-            left_cam['intrinsics']['cy'] -= y1
-            right_cam['intrinsics']['cx'] -= x1
-            right_cam['intrinsics']['cy'] -= y1
+        left_img = left_img.crop((x1, y1, x1 + tw, y1 + th))
+        right_img = right_img.crop((x1, y1, x1 + tw, y1 + th))
+        left_disp = left_disp[y1:y1 + th, x1:x1 + tw]
+        left_cam['intrinsics']['cx'] -= x1
+        left_cam['intrinsics']['cy'] -= y1
+        right_cam['intrinsics']['cx'] -= x1
+        right_cam['intrinsics']['cy'] -= y1
 
-            processed = preprocess.get_transform()
-            left_img = processed(left_img)
-            right_img = processed(right_img)
+        processed = preprocess.get_transform()
+        left_img = processed(left_img)
+        right_img = processed(right_img)
 
-            return left_img, right_img, left_disp, left_cam, right_cam, left_img_fn, right_img_fn
-        else:
-            w, h = left_img.size
-
-            dw = w + (self.downsample_scale - (w%self.downsample_scale + (w%self.downsample_scale==0)*self.downsample_scale))
-            dh = h + (self.downsample_scale - (h%self.downsample_scale + (h%self.downsample_scale==0)*self.downsample_scale))
-
-            # if w-dw < 0, crop() will pad with black pixels
-            left_img = left_img.crop((w - dw, h - dh, w, h))
-            right_img = right_img.crop((w - dw, h - dh, w, h))
-            left_disp_tmp = np.zeros((max(dh, h), max(dw, w)), dtype=np.float32)
-            sh = max(0, dh - h) // 2
-            sw = max(0, dw - w) // 2
-            left_disp_tmp[sh:(sh+h), sw:(sw+w)] = left_disp
-            sh = max(0, h - dh) // 2
-            sw = max(0, w - dw) // 2
-            left_disp = left_disp_tmp[sh:(sh+dh), sw:(sw+dw)]
-            left_cam['intrinsics']['cx'] += dw - w
-            left_cam['intrinsics']['cy'] += dh - h
-            right_cam['intrinsics']['cx'] += dw - w
-            right_cam['intrinsics']['cy'] += dh - h
-
-            processed = preprocess.get_transform()
-            left_img = processed(left_img)
-            right_img = processed(right_img)
-
-            return left_img, right_img, left_disp, dw-w, dh-h, left_cam, right_cam, left_img_fn, right_img_fn
+        return left_img, right_img, left_disp, left_cam, right_cam, left_img_fn, right_img_fn
+        # else:
+        #     w, h = left_img.size
+        #
+        #     dw = w + (self.downsample_scale - (w%self.downsample_scale + (w%self.downsample_scale==0)*self.downsample_scale))
+        #     dh = h + (self.downsample_scale - (h%self.downsample_scale + (h%self.downsample_scale==0)*self.downsample_scale))
+        #
+        #     # if w-dw < 0, crop() will pad with black pixels
+        #     left_img = left_img.crop((w - dw, h - dh, w, h))
+        #     right_img = right_img.crop((w - dw, h - dh, w, h))
+        #     left_disp_tmp = np.zeros((max(dh, h), max(dw, w)), dtype=np.float32)
+        #     sh = max(0, dh - h) // 2
+        #     sw = max(0, dw - w) // 2
+        #     left_disp_tmp[sh:(sh+h), sw:(sw+w)] = left_disp
+        #     sh = max(0, h - dh) // 2
+        #     sw = max(0, w - dw) // 2
+        #     left_disp = left_disp_tmp[sh:(sh+dh), sw:(sw+dw)]
+        #     left_cam['intrinsics']['cx'] += dw - w
+        #     left_cam['intrinsics']['cy'] += dh - h
+        #     right_cam['intrinsics']['cx'] += dw - w
+        #     right_cam['intrinsics']['cy'] += dh - h
+        #
+        #     processed = preprocess.get_transform()
+        #     left_img = processed(left_img)
+        #     right_img = processed(right_img)
+        #
+        #     return left_img, right_img, left_disp, dw-w, dh-h, left_cam, right_cam, left_img_fn, right_img_fn
 
     def __len__(self):
         return len(self.left_images)

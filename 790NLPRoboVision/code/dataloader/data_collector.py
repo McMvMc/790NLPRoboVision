@@ -1,4 +1,4 @@
-rom __future__ import print_function
+from __future__ import print_function
 import numpy as np
 import torch.utils.data as data
 from PIL import Image
