@@ -289,7 +289,7 @@ def main():
             logging.info("testing...")
             # for batch_idx, (imgL, imgR, disp_L, pad_w, pad_h, left_cam, right_cam, imgL_fn, imgR_fn) in enumerate(TestImgLoader):
             for batch_idx, (imgL, imgR, disp_L, left_cam_crop, right_cam_crop, imgL_crop_fn, imgR_crop_fn) in enumerate(
-                    TrainImgLoader):
+                    TestImgLoader):
                 start_time = time.time()
                 test_loss, epe_loss = test(imgL, imgR, disp_L, batch_idx)
                 total_test_loss += test_loss
