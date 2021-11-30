@@ -95,11 +95,11 @@ batch_size = 1
 
 TrainImgLoader = torch.utils.data.DataLoader(
     dl.SceneflowLoader(all_left_img, all_right_img, all_left_disp, all_left_cam, all_right_cam, 32, True),
-    batch_size=batch_size, shuffle=True, num_workers=4, drop_last=False)
+    batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
 
 TestImgLoader = torch.utils.data.DataLoader(
     dl.SceneflowLoader(test_left_img, test_right_img, test_left_disp, test_left_cam, test_right_cam, 32, False),
-    batch_size=batch_size*2, shuffle=False, num_workers=4, drop_last=False)
+    batch_size=batch_size*2, shuffle=False, num_workers=0, drop_last=False)
 
 # if args.run_depth:
 #
