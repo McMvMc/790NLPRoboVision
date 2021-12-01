@@ -48,7 +48,7 @@ parser.add_argument('--datapath_driving', default='/evo970/sceneflow/driving',
                     help='datapath for sceneflow driving dataset')
 parser.add_argument('--epochs', type=int, default=15,
                     help='number of epochs to train')
-parser.add_argument('--loadmodel', default=None,
+parser.add_argument('--loadmodel', default='/home/mike/Desktop/UNC_PhD/790-nlp_robotics_vision/790NLPRoboVision/790NLPRoboVision/code/runs/Nov25_03-14-21_mike-dev/finetune_0.tar',
                     help='load model')
 parser.add_argument('--save_dir', default='./',
                     help='save directory')
@@ -99,7 +99,7 @@ TrainImgLoader = torch.utils.data.DataLoader(
 
 TestImgLoader = torch.utils.data.DataLoader(
     dl.SceneflowLoader(test_left_img, test_right_img, test_left_disp, test_left_cam, test_right_cam, 32, False),
-    batch_size=batch_size*2, shuffle=False, num_workers=0, drop_last=False)
+    batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 # if args.run_depth:
 #
@@ -114,7 +114,7 @@ if args.cuda:
 
 if args.loadmodel is not None:
     state_dict = torch.load(args.loadmodel)
-    # model.load_state_dict(state_dict['state_dict'], strict=True)
+    model.load_state_dict(state_dict['state_dict'], strict=True)
     logging.info('model loaded from {}'.format(args.loadmodel))
 
 logging.info('Number of model parameters: {}'.format(sum([p.data.nelement() for p in model.parameters()])))
@@ -260,6 +260,11 @@ def test(imgL, imgR, disp_L, iteration):
 
         loss = calc_loss(result, disp_true, mask)
         epe_loss = torch.mean(torch.abs(result[mask] - disp_true[mask]))
+
+        # plt.figure(f'err {epe_loss}');
+        # plt.imshow(result[0].detach().cpu(), vmin=disp_true.min(), vmax=disp_true.max())
+        # plt.figure(f'gt');
+        # plt.imshow(disp_true[0].detach().cpu(), vmin=disp_true.min(), vmax=disp_true.max())
 
     return loss.item(), epe_loss.item()
 

@@ -84,7 +84,10 @@ class MultiviewTransformer(nn.Module):
             x_l = self.layer_norm(x_l)
             x_r = self.layer_norm(x_r)
 
-            x_l, x_r, cross_attn_score = checkpoint(call_attn(self.cross_attention_layers[i]),
+            x_r, cross_attn_score = checkpoint(call_attn(self.cross_attention_layers[i]),
+                                              x_r, x_l, self.pe_table, None)
+            x_r = self.layer_norm(x_r)
+            x_l, cross_attn_score = checkpoint(call_attn(self.cross_attention_layers[i]),
                                               x_l, x_r, self.pe_table, None)
 
         u_idx = torch.arange(w).to(device)
@@ -161,9 +164,9 @@ class CrossAttention(nn.MultiheadAttention):
 
     def forward(self, x_l, x_r, pos_enc, mask):
 
-        x_l_after, attn_score = compute_attention(self, query=x_r, key=x_l, value=x_l, pos_enc_table=pos_enc, is_cross_attn=True)
+        x_l_after, attn_score = compute_attention(self, query=x_l, key=x_r, value=x_r, pos_enc_table=pos_enc, is_cross_attn=True)
 
         x_l = x_l + x_l_after
 
-        return x_l, x_r, attn_score
+        return x_l, attn_score
 
