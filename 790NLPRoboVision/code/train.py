@@ -48,7 +48,7 @@ parser.add_argument('--datapath_driving', default='/evo970/sceneflow/driving',
                     help='datapath for sceneflow driving dataset')
 parser.add_argument('--epochs', type=int, default=15,
                     help='number of epochs to train')
-parser.add_argument('--loadmodel', default='/home/mike/Desktop/UNC_PhD/790-nlp_robotics_vision/790NLPRoboVision/790NLPRoboVision/code/runs/Nov25_03-14-21_mike-dev/finetune_0.tar',
+parser.add_argument('--loadmodel', default='./finetune_14.tar',
                     help='load model')
 parser.add_argument('--save_dir', default='./',
                     help='save directory')
@@ -261,13 +261,19 @@ def test(imgL, imgR, disp_L, iteration):
         loss = calc_loss(result, disp_true, mask)
         epe_loss = torch.mean(torch.abs(result[mask] - disp_true[mask]))
 
-        # plt.figure(f'err {epe_loss}');
+        # print(f'{epe_loss}')
+        # plt.figure(f'err');
         # plt.imshow(result[0].detach().cpu(), vmin=disp_true.min(), vmax=disp_true.max())
         # plt.figure(f'gt');
         # plt.imshow(disp_true[0].detach().cpu(), vmin=disp_true.min(), vmax=disp_true.max())
+        # plt.figure(f'diff');
+        # plt.imshow((disp_true[0]-result[0]).abs().detach().cpu(), vmin=disp_true.min(), vmax=disp_true.max())
+        # plt.figure(f'L R input');
+        # plt.subplot(1,2,1); plt.imshow(imgL[0].permute(1,2,0).detach().cpu()/2+0.5)
+        # plt.subplot(1,2,2); plt.imshow(imgR[0].permute(1,2,0).detach().cpu()/2+0.5)
 
     return loss.item(), epe_loss.item()
-
+    # return 0., epe_loss.item()
 
 # def adjust_learning_rate(optimizer, epoch):
 #     if epoch <= 20:
@@ -283,7 +289,7 @@ def test(imgL, imgR, disp_L, iteration):
 
 
 def main():
-    for epoch in range(0, args.epochs):
+    for epoch in range(1, args.epochs):
         total_train_loss = 0
         total_test_loss = 0
         total_epe_loss = 0
